@@ -29,10 +29,16 @@ function query(filterBy = {}) {
       todos = todos.filter(todo => todo.importance >= filterBy.importance)
     }
 
-    if (filterBy.showOption && filterBy.showOption !== "all") {
-      todos = todos.filter(todo =>
-        filterBy.showOption === "active" ? !todo.isDone : todo.isDone
-      )
+    const showOptionFilter = filterBy.showOption
+    if (showOptionFilter) {
+      if (showOptionFilter !== "all") {
+        if (showOptionFilter === "active" || showOptionFilter === "done") {
+          console.log(`showOptionFilter = ${showOptionFilter}`)
+          todos = todos.filter(todo =>
+            showOptionFilter === "active" ? !todo.isDone : todo.isDone
+          )
+        }
+      }
     }
 
     return todos
@@ -78,11 +84,12 @@ function getDefaultFilter() {
   return { txt: "", importance: 0, showOption: "all" }
 }
 
-function getFilterFromSearchParams(searchParams) {
-  const defaultFilter = getDefaultFilter()
-  const filterBy = {}
-  for (const field in defaultFilter) {
-    filterBy[field] = searchParams.get(field) || ""
+function getFilterFromSearchParams() {
+  const searchParams = utilService.getQueryParams()
+  const filterBy = {
+    txt: searchParams["txt"] || "",
+    importance: +searchParams["importance"] || 0,
+    showOption: searchParams["showOption"] || "all",
   }
   return filterBy
 }

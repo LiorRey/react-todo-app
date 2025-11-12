@@ -10,6 +10,7 @@ export const utilService = {
   getFormattedTime,
   getTruthyValues,
   debounce,
+  getQueryParams,
 }
 
 function makeId(length = 6) {
@@ -137,4 +138,26 @@ function debounce(callback, wait) {
       callback(...args)
     }, wait)
   }
+}
+
+function getQueryParams(url) {
+  if (!url) url = window.location.href
+  const params = {}
+
+  const parts = url.split("?")
+  if (parts.length < 2) return params
+
+  const queryString = parts[1].split("#")[0]
+  if (!queryString) return params
+
+  const pairs = queryString.split("&")
+  for (let i = 0; i < pairs.length; i++) {
+    if (!pairs[i]) continue
+    const pair = pairs[i].split("=")
+    const key = decodeURIComponent(pair[0])
+    const value = decodeURIComponent(pair[1] || "")
+    params[key] = value
+  }
+
+  return params
 }

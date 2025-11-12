@@ -64,7 +64,7 @@ export function TodoFilter({ filterBy, onSetFilterBy }) {
         />
         <label htmlFor="show-option">Show: </label>
         <select
-          value={showOption}
+          value={showOption.toLowerCase()}
           onChange={handleChange}
           type="number"
           id="show-option"

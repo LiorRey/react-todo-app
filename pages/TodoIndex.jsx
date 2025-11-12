@@ -4,6 +4,7 @@ import {
   loadTodos,
   removeTodoOptimistic,
   saveTodo,
+  setFilter,
 } from "../store/actions/todo.actions.js"
 import { TodoFilter } from "../cmps/TodoFilter.jsx"
 import { TodoList } from "../cmps/TodoList.jsx"
@@ -17,21 +18,18 @@ const { useSelector } = ReactRedux
 
 export function TodoIndex() {
   const todos = useSelector(storeState => storeState.todoModule.todos)
+  const filterBy = useSelector(storeState => storeState.todoModule.filterBy)
   const isLoading = useSelector(storeState => storeState.todoModule.isLoading)
   const user = useSelector(storeState => storeState.userModule.loggedInUser)
 
   // Special hook for accessing search-params:
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const searchParamsFilter = todoService.getFilterFromSearchParams(searchParams)
-
-  const [filterBy, setFilterBy] = useState(searchParamsFilter)
+  const [_, setSearchParams] = useSearchParams()
 
   useEffect(() => {
-    setSearchParams(utilService.getTruthyValues(filterBy))
-    loadTodos(filterBy).catch(() => {
+    loadTodos().catch(() => {
       showErrorMsg("Error occurred while loading todos")
     })
+    setSearchParams(utilService.getTruthyValues(filterBy))
   }, [filterBy])
 
   function onRemoveTodo(todoId) {
@@ -54,10 +52,14 @@ export function TodoIndex() {
       .catch(() => showErrorMsg("Error occurred while toggling todo"))
   }
 
+  function onSetFilter(newFilterBy) {
+    setFilter(newFilterBy)
+  }
+
   if (!todos) return <div>Loading...</div>
   return (
     <section className="todo-index">
-      <TodoFilter filterBy={filterBy} onSetFilterBy={setFilterBy} />
+      <TodoFilter filterBy={filterBy} onSetFilterBy={onSetFilter} />
       <div>
         <Link to="/todo/edit" className="btn">
           Add Todo

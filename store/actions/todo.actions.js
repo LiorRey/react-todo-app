@@ -1,4 +1,5 @@
-import { todoService } from "../../services/todo.service.js"
+import { addActivity } from "./user.actions.js"
+import { store } from "../store.js"
 import {
   ADD_TODO,
   REMOVE_TODO,
@@ -6,11 +7,12 @@ import {
   SET_IS_LOADING,
   UNDO_TODOS,
   UPDATE_TODO,
+  SET_FILTER_BY,
 } from "../reducers/todo.reducer.js"
-import { store } from "../store.js"
-import { addActivity } from "./user.actions.js"
+import { todoService } from "../../services/todo.service.js"
 
-export function loadTodos(filterBy) {
+export function loadTodos() {
+  const filterBy = store.getState().todoModule.filterBy
   store.dispatch({ type: SET_IS_LOADING, isLoading: true })
 
   return todoService
@@ -62,6 +64,14 @@ export function removeTodo(todoId) {
       console.log("Todo action -> Cannot remove todo", err)
       throw err
     })
+}
+
+export function setFilter(filterBy) {
+  const cmd = {
+    type: SET_FILTER_BY,
+    filterBy,
+  }
+  store.dispatch(cmd)
 }
 
 export function removeTodoOptimistic(todoId) {
