@@ -78,18 +78,13 @@ export function TodoIndex() {
       </div>
       <h2 className="todos-list-title">Todos List</h2>
       <div className={isLoading ? "loading" : ""}>
+        <PaginationBtns pageIdx={pageIdx} onChangePageIdx={onChangePageIdx} />
         {!!todos.length ? (
-          <div>
-            <PaginationBtns
-              pageIdx={pageIdx}
-              onChangePageIdx={onChangePageIdx}
-            />
-            <TodoList
-              todos={todos}
-              onRemoveTodo={onRemoveTodo}
-              onToggleTodo={onToggleTodo}
-            />
-          </div>
+          <TodoList
+            todos={todos}
+            onRemoveTodo={onRemoveTodo}
+            onToggleTodo={onToggleTodo}
+          />
         ) : (
           <h3>No todos to show...</h3>
         )}

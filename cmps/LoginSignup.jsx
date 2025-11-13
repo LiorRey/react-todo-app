@@ -4,7 +4,7 @@ import { showErrorMsg, showSuccessMsg } from "../services/event-bus.service.js"
 
 const { useState } = React
 
-export function LoginSignup({ onSetUser }) {
+export function LoginSignup() {
   const [isSignup, setIsSignUp] = useState(false)
   const [credentials, setCredentials] = useState(
     userService.getEmptyCredentials()

@@ -1,27 +1,19 @@
 const { Link, NavLink } = ReactRouterDOM
-const { useNavigate } = ReactRouter
 const { useSelector } = ReactRedux
 
 import { UserMsg } from "./UserMsg.jsx"
 import { LoginSignup } from "./LoginSignup.jsx"
-import { logout } from "../store/actions/user.actions.js"
 import { TodoDoneProgress } from "./TodoDoneProgress.jsx"
+import { logout } from "../store/actions/user.actions.js"
 import { showErrorMsg } from "../services/event-bus.service.js"
 
 export function AppHeader() {
-  const navigate = useNavigate()
-  const user = useSelector(storeState => storeState.userModule.loggedInUser)
   const loggedInUser = useSelector(
     storeState => storeState.userModule.loggedInUser
   )
 
   function onLogout() {
     logout().catch(err => showErrorMsg("Error occurred during logout"))
-  }
-
-  function onSetUser(user) {
-    setUser(user)
-    navigate("/")
   }
 
   function getDefaultOrUserStyle() {
@@ -45,23 +37,23 @@ export function AppHeader() {
     >
       <section className="header-container">
         <h1>React Todo App - By LiorRey</h1>
-        {user ? (
+        {loggedInUser ? (
           <section>
-            <Link to={`/user/${user._id}`}>
-              Hello <b>{user.fullname}</b>
+            <Link to={`/user/${loggedInUser._id}`}>
+              Hello <b>{loggedInUser.fullname}</b>
             </Link>
             <button onClick={onLogout}>Logout</button>
             <div>
-              <label>Your balance is: {user.balance}</label>
+              <label>Your balance is: {loggedInUser.balance}</label>
             </div>
           </section>
         ) : (
           <section>
-            <LoginSignup onSetUser={onSetUser} />
+            <LoginSignup />
           </section>
         )}
 
-        <TodoDoneProgress />
+        {loggedInUser ? <TodoDoneProgress /> : ""}
 
         <nav className="app-nav">
           <NavLink to="/">Home</NavLink>

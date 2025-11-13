@@ -15,7 +15,7 @@ export function login(credentials) {
     })
     .then(() => addActivity("Logged in. Good to see you again!"))
     .catch(err => {
-      console.log("User action -> Cannot login", err)
+      console.log("User action -> Cannot login:", err)
       throw err
     })
 }
@@ -28,7 +28,7 @@ export function signup(credentials) {
     })
     .then(() => addActivity("Signed up. Welcome!"))
     .catch(err => {
-      console.log("User action -> Cannot signup", err)
+      console.log("User action -> Cannot signup:", err)
       throw err
     })
 }
@@ -40,7 +40,7 @@ export function logout(credentials) {
       store.dispatch({ type: SET_USER, user: null })
     })
     .catch(err => {
-      console.log("User action -> Cannot logout", err)
+      console.log("User action -> Cannot logout:", err)
       throw err
     })
 }
@@ -52,7 +52,7 @@ export function updateBalance(addToBalance) {
       store.dispatch({ type: SET_USER_BALANCE, balance: updatedBalance })
     })
     .catch(err => {
-      console.log("User action -> Cannot update balance", err)
+      console.log("User action -> Cannot update balance:", err)
       throw err
     })
 }
@@ -64,7 +64,7 @@ export function updateBalance(addToBalance) {
 //       store.dispatch({ type: SET_USER_FULLNAME, fullname: updatedFullname })
 //     })
 //     .catch(err => {
-//       console.log("User action -> Cannot update fullname", err)
+//       console.log("User action -> Cannot update fullname:", err)
 //       throw err
 //     })
 // }
@@ -76,7 +76,7 @@ export function updateBalance(addToBalance) {
 //       store.dispatch({ type: SET_USER_PREFS, prefs: updatedPrefs })
 //     })
 //     .catch(err => {
-//       console.log("User action -> Cannot update prefs", err)
+//       console.log("User action -> Cannot update prefs:", err)
 //       throw err
 //     })
 // }
@@ -89,7 +89,7 @@ export function updateUserDetails(userDetailsToUpdate) {
     })
     .then(() => addActivity("Updated his/her details"))
     .catch(err => {
-      console.log("User action -> Cannot update user details", err)
+      console.log("User action -> Cannot update user details:", err)
       throw err
     })
 }
@@ -101,7 +101,7 @@ export function addActivity(activityDescription) {
       store.dispatch({ type: SET_USER, user: updatedUser })
     })
     .catch(err => {
-      console.log("User action -> Cannot add activity", err)
+      console.log("User action -> Cannot add activity:", err)
       throw err
     })
 }

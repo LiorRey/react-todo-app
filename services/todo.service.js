@@ -60,37 +60,53 @@ function query(filterBy = {}) {
 }
 
 function get(todoId) {
-  return storageService.get(TODO_KEY, todoId).then(todo => {
-    todo = _setNextPrevTodoId(todo)
-    return todo
-  })
+  return storageService
+    .get(TODO_KEY, todoId)
+    .then(todo => _setNextPrevTodoId(todo))
+    .catch(err => {
+      console.error("Cannot get todo:", err)
+      throw err
+    })
 }
 
 function remove(todoId) {
-  return storageService.remove(TODO_KEY, todoId)
+  return storageService
+    .remove(TODO_KEY, todoId)
+    .then(() => _includeDataFromServer())
+    .catch(err => {
+      console.error("Cannot remove todo:", err)
+      throw err
+    })
 }
 
 function save(todo) {
   if (!userService.getLoggedinUser())
     return Promise.reject("User is not logged in")
 
-  let savedTodo
-  // if - edit , else - add
-  if (todo._id) {
-    // TODO - updatable fields
-    todo.updatedAt = Date.now()
-    savedTodo = storageService.put(TODO_KEY, todo)
-  } else {
-    // Create a shallow copy so that storageService.post()
-    // can safely add _id without mutating the original todo object :
-    const newTodo = { ...todo }
+  return (todo._id ? _edit(todo) : _add(todo)).then(savedTodo =>
+    _includeDataFromServer({ savedTodo })
+  )
+}
 
-    newTodo.createdAt = newTodo.updatedAt = Date.now()
+function _add(todo) {
+  // Create a shallow copy so that storageService.post()
+  // can safely add _id without mutating the original todo object :
+  todo = { ...todo }
 
-    savedTodo = storageService.post(TODO_KEY, newTodo)
-  }
+  todo.createdAt = todo.updatedAt = Date.now()
 
-  return _includeDataFromServer({ savedTodo })
+  return storageService.post(TODO_KEY, todo).catch(err => {
+    console.error("Cannot add todo:", err)
+    throw err
+  })
+}
+
+function _edit(todo) {
+  todo.updatedAt = Date.now()
+  return storageService.put(TODO_KEY, todo).catch(err => {
+    console.error("Cannot update todo:", err)
+    throw err
+  })
 }
 
 function getEmptyTodo(txt = "", importance = 5) {
@@ -117,13 +133,16 @@ function getFilterFromSearchParams() {
 function _includeDataFromServer(data = {}) {
   const filteredTodosLength = data.filteredTodosLength
 
-  return Promise.resolve(getMaxPage(filteredTodosLength)).then(maxPage => {
-    return { maxPage, ...data }
+  return Promise.all([
+    _getMaxPage(filteredTodosLength),
+    _getDoneTodosPercent(),
+  ]).then(([maxPage, doneTodosPercent]) => {
+    return { maxPage, doneTodosPercent, ...data }
   })
 }
 
 //* Demo function thats mimic the extra pagination data from the server
-function getMaxPage(filteredTodosLength) {
+function _getMaxPage(filteredTodosLength) {
   if (filteredTodosLength)
     return Promise.resolve(Math.ceil(filteredTodosLength / PAGE_SIZE))
 
@@ -132,6 +151,23 @@ function getMaxPage(filteredTodosLength) {
     .then(todos => Math.ceil(todos.length / PAGE_SIZE))
     .catch(err => {
       console.error("Cannot get max page:", err)
+      throw err
+    })
+}
+
+//* Demo function thats mimic the total todos and percent in header and footer
+function _getDoneTodosPercent() {
+  return storageService
+    .query(TODO_KEY)
+    .then(todos => {
+      const doneTodosCount = todos.reduce((acc, todo) => {
+        if (todo.isDone) acc++
+        return acc
+      }, 0)
+      return (doneTodosCount / todos.length) * 100 || 0
+    })
+    .catch(err => {
+      console.error("Cannot get done todos percent:", err)
       throw err
     })
 }

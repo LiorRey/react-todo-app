@@ -1,3 +1,4 @@
+import { useEffectUpdate } from "../hooks/useEffectUpdate.js"
 import { utilService } from "../services/util.service.js"
 
 const { useState, useEffect, useRef } = React
@@ -8,7 +9,11 @@ export function TodoFilter({ filterBy, onSetFilterBy }) {
     utilService.debounce(onSetFilterBy, 500)
   ).current
 
-  useEffect(() => {
+  // This custom hooks prevents filtering at mount (first time),
+  // so we only filter when filterByToEdit is updated,
+  // and so, after refreshing the page, we can stay on the same pageIdx
+  // that was before the refresh :
+  useEffectUpdate(() => {
     // Notify parent
     onSetFilterByDebounce(filterByToEdit)
   }, [filterByToEdit])

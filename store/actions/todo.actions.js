@@ -9,6 +9,7 @@ import {
   UPDATE_TODO,
   SET_FILTER_BY,
   SET_MAX_PAGE,
+  SET_DONE_TODOS_PERCENT,
 } from "../reducers/todo.reducer.js"
 import { todoService } from "../../services/todo.service.js"
 
@@ -18,17 +19,14 @@ export function loadTodos() {
 
   return todoService
     .query(filterBy)
-    .then(({ todos, maxPage }) => {
+    .then(({ todos, maxPage, doneTodosPercent }) => {
       store.dispatch({ type: SET_TODOS, todos })
-      store.dispatch({
-        type: SET_MAX_PAGE,
-        maxPage,
-      })
+      _setTodosData(maxPage, doneTodosPercent)
 
       return todos
     })
     .catch(err => {
-      console.log("Todo action -> Cannot load todos", err)
+      console.log("Todo action -> Cannot load todos:", err)
       throw err
     })
     .finally(() => {
@@ -41,12 +39,9 @@ export function saveTodo(todo) {
 
   return todoService
     .save(todo)
-    .then(({ savedTodo, maxPage }) => {
+    .then(({ savedTodo, maxPage, doneTodosPercent }) => {
       store.dispatch({ type, todo: savedTodo })
-      store.dispatch({
-        type: SET_MAX_PAGE,
-        maxPage,
-      })
+      _setTodosData(maxPage, doneTodosPercent)
 
       return savedTodo
     })
@@ -59,7 +54,7 @@ export function saveTodo(todo) {
       ).then(() => res)
     })
     .catch(err => {
-      console.log("Todo action -> Cannot save todo", err)
+      console.log("Todo action -> Cannot save todo:", err)
       throw err
     })
 }
@@ -67,16 +62,13 @@ export function saveTodo(todo) {
 export function removeTodo(todoId) {
   return todoService
     .remove(todoId)
-    .then(({ maxPage }) => {
+    .then(({ maxPage, doneTodosPercent }) => {
       store.dispatch({ type: REMOVE_TODO, todoId })
-      store.dispatch({
-        type: SET_MAX_PAGE,
-        maxPage,
-      })
+      _setTodosData(maxPage, doneTodosPercent)
     })
     .then(() => addActivity("Removed the Todo: " + todoId))
     .catch(err => {
-      console.log("Todo action -> Cannot remove todo", err)
+      console.log("Todo action -> Cannot remove todo:", err)
       throw err
     })
 }
@@ -94,10 +86,25 @@ export function removeTodoOptimistic(todoId) {
 
   return todoService
     .remove(todoId)
+    .then(({ maxPage, doneTodosPercent }) => {
+      _setTodosData(maxPage, doneTodosPercent)
+    })
     .then(() => addActivity("Removed the Todo: " + todoId))
     .catch(err => {
       store.dispatch({ type: UNDO_TODOS })
-      console.log("Todo action -> Cannot remove todo", err)
+      console.log("Todo action -> Cannot remove todo:", err)
       throw err
     })
+}
+
+function _setTodosData(maxPage, doneTodosPercent) {
+  store.dispatch({
+    type: SET_MAX_PAGE,
+    maxPage,
+  })
+
+  store.dispatch({
+    type: SET_DONE_TODOS_PERCENT,
+    doneTodosPercent,
+  })
 }

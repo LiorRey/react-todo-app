@@ -23,9 +23,11 @@ export function AppFooter() {
 
   return (
     <footer className="app-footer full" style={getDefaultOrUserStyle()}>
-      <section className="footer-container">
-        <TodoDoneProgress />
-      </section>
+      {loggedInUser && (
+        <section className="footer-container">
+          <TodoDoneProgress />
+        </section>
+      )}
     </footer>
   )
 }
