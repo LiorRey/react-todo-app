@@ -41,6 +41,14 @@ function query(filterBy = {}) {
       }
     }
 
+    if (filterBy.sort) {
+      if (filterBy.sort === "txt") {
+        todos = todos.sort((todo1, todo2) => todo1.txt.localeCompare(todo2.txt))
+      } else if (filterBy.sort === "createdAt") {
+        todos = todos.sort((todo1, todo2) => todo1.createdAt - todo2.createdAt)
+      }
+    }
+
     return todos
   })
 }
@@ -81,7 +89,7 @@ function getEmptyTodo(txt = "", importance = 5) {
 }
 
 function getDefaultFilter() {
-  return { txt: "", importance: 0, showOption: "all" }
+  return { txt: "", importance: 0, showOption: "all", sort: "" }
 }
 
 function getFilterFromSearchParams() {
@@ -90,6 +98,7 @@ function getFilterFromSearchParams() {
     txt: searchParams["txt"] || "",
     importance: +searchParams["importance"] || 0,
     showOption: searchParams["showOption"] || "all",
+    sort: searchParams["sort"] || "",
   }
   return filterBy
 }

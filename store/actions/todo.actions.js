@@ -66,7 +66,7 @@ export function removeTodo(todoId) {
     })
 }
 
-export function setFilter(filterBy) {
+export function setFilterSort(filterBy) {
   const cmd = {
     type: SET_FILTER_BY,
     filterBy,

@@ -45,41 +45,62 @@ export function TodoFilter({ filterBy, onSetFilterBy }) {
     <section className="todo-filter">
       <h2>Filter Todos</h2>
       <form onSubmit={onSubmitFilter}>
-        <input
-          value={txt}
-          onChange={handleChange}
-          type="search"
-          placeholder="By Txt"
-          id="txt"
-          name="txt"
-        />
-        <label htmlFor="importance">Importance: </label>
-        <input
-          value={importance}
-          onChange={handleChange}
-          type="number"
-          placeholder="By Importance"
-          id="importance"
-          name="importance"
-        />
-        <label htmlFor="show-option">Show: </label>
-        <select
-          value={showOption.toLowerCase()}
-          onChange={handleChange}
-          type="number"
-          id="show-option"
-          name="showOption"
-        >
-          <option key="all" value="all">
-            All
-          </option>
-          <option key="active" value="active">
-            Active
-          </option>
-          <option key="done" value="done">
-            Done
-          </option>
-        </select>
+        <div className="txt-container">
+          <label htmlFor="txt">Text: </label>
+          <input
+            value={txt}
+            onChange={handleChange}
+            type="search"
+            placeholder="By Txt"
+            id="txt"
+            name="txt"
+          />
+        </div>
+        <div className="importance-container">
+          <label htmlFor="importance">Importance: </label>
+          <input
+            value={importance}
+            onChange={handleChange}
+            type="number"
+            placeholder="By Importance"
+            id="importance"
+            name="importance"
+          />
+        </div>
+        <div className="show-option-container">
+          <label htmlFor="show-option">Show: </label>
+          <select
+            value={showOption.toLowerCase()}
+            onChange={handleChange}
+            type="number"
+            id="show-option"
+            name="showOption"
+          >
+            <option key="all" value="all">
+              All
+            </option>
+            <option key="active" value="active">
+              Active
+            </option>
+            <option key="done" value="done">
+              Done
+            </option>
+          </select>
+        </div>
+
+        <div className="sort-container">
+          <label htmlFor="sort">Sort By: </label>
+          <select
+            value={filterByToEdit.sort}
+            name="sort"
+            onChange={handleChange}
+            id="sort"
+          >
+            <option value="">Sort By</option>
+            <option value="txt">Text</option>
+            <option value="createdAt">Time</option>
+          </select>
+        </div>
 
         <button hidden>Set Filter</button>
       </form>

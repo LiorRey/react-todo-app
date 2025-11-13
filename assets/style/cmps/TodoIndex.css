@@ -1,3 +1,13 @@
+.todo-index .txt-container,
+.todo-index .importance-container,
+.todo-index .show-option-container {
+  margin-block: 10px;
+}
+
+.todo-index .sort-container {
+  margin-block-start: 30px;
+}
+
 .loading {
   opacity: 0.6;
 }
