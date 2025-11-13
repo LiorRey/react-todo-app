@@ -8,6 +8,7 @@ import {
   UNDO_TODOS,
   UPDATE_TODO,
   SET_FILTER_BY,
+  SET_MAX_PAGE,
 } from "../reducers/todo.reducer.js"
 import { todoService } from "../../services/todo.service.js"
 
@@ -17,8 +18,14 @@ export function loadTodos() {
 
   return todoService
     .query(filterBy)
-    .then(todos => {
+    .then(({ todos, maxPage }) => {
       store.dispatch({ type: SET_TODOS, todos })
+      store.dispatch({
+        type: SET_MAX_PAGE,
+        maxPage,
+      })
+
+      return todos
     })
     .catch(err => {
       console.log("Todo action -> Cannot load todos", err)
@@ -34,8 +41,12 @@ export function saveTodo(todo) {
 
   return todoService
     .save(todo)
-    .then(savedTodo => {
+    .then(({ savedTodo, maxPage }) => {
       store.dispatch({ type, todo: savedTodo })
+      store.dispatch({
+        type: SET_MAX_PAGE,
+        maxPage,
+      })
 
       return savedTodo
     })
@@ -56,8 +67,12 @@ export function saveTodo(todo) {
 export function removeTodo(todoId) {
   return todoService
     .remove(todoId)
-    .then(() => {
+    .then(({ maxPage }) => {
       store.dispatch({ type: REMOVE_TODO, todoId })
+      store.dispatch({
+        type: SET_MAX_PAGE,
+        maxPage,
+      })
     })
     .then(() => addActivity("Removed the Todo: " + todoId))
     .catch(err => {

@@ -7,6 +7,7 @@ export const UPDATE_TODO = "UPDATE_TODO"
 export const REMOVE_TODO = "REMOVE_TODO"
 export const UNDO_TODOS = "UNDO_TODOS"
 export const SET_FILTER_BY = "SET_FILTER_BY"
+export const SET_MAX_PAGE = "SET_MAX_PAGE"
 
 // isLoading
 export const SET_IS_LOADING = "SET_IS_LOADING"
@@ -15,6 +16,7 @@ const initialState = {
   todos: [],
   lastTodos: [],
   filterBy: todoService.getFilterFromSearchParams(),
+  maxPage: 0,
   isLoading: false,
 }
 
@@ -54,6 +56,8 @@ export function todoReducer(state = initialState, cmd) {
         ...state,
         filterBy: { ...state.filterBy, ...cmd.filterBy },
       }
+    case SET_MAX_PAGE:
+      return { ...state, maxPage: cmd.maxPage }
     // isLoading
     case SET_IS_LOADING:
       return {

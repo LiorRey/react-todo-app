@@ -20,6 +20,7 @@
 
 @import "cmps/TodoIndex.css";
 @import "cmps/TodoFilter.css";
+@import "cmps/PaginationBtns.css";
 @import "cmps/TodoList.css";
 @import "cmps/TodoPreview.css";
 @import "cmps/TodoDetails.css";

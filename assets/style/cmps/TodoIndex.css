@@ -8,6 +8,10 @@
   margin-block-start: 30px;
 }
 
+.todo-index .todos-list-title {
+  margin-block-start: 30px;
+}
+
 .loading {
   opacity: 0.6;
 }

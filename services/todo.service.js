@@ -3,6 +3,7 @@ import { storageService } from "./async-storage.service.js"
 import { userService } from "./user.service.js"
 
 const TODO_KEY = "todoDB"
+const PAGE_SIZE = 3
 _createTodos()
 
 export const todoService = {
@@ -33,7 +34,6 @@ function query(filterBy = {}) {
     if (showOptionFilter) {
       if (showOptionFilter !== "all") {
         if (showOptionFilter === "active" || showOptionFilter === "done") {
-          console.log(`showOptionFilter = ${showOptionFilter}`)
           todos = todos.filter(todo =>
             showOptionFilter === "active" ? !todo.isDone : todo.isDone
           )
@@ -49,7 +49,13 @@ function query(filterBy = {}) {
       }
     }
 
-    return todos
+    const filteredTodosLength = todos.length
+    if (filterBy.pageIdx !== undefined) {
+      const startIdx = filterBy.pageIdx * PAGE_SIZE
+      todos = todos.slice(startIdx, startIdx + PAGE_SIZE)
+    }
+
+    return _includeDataFromServer({ todos, filteredTodosLength })
   })
 }
 
@@ -68,11 +74,12 @@ function save(todo) {
   if (!userService.getLoggedinUser())
     return Promise.reject("User is not logged in")
 
+  let savedTodo
   // if - edit , else - add
   if (todo._id) {
     // TODO - updatable fields
     todo.updatedAt = Date.now()
-    return storageService.put(TODO_KEY, todo)
+    savedTodo = storageService.put(TODO_KEY, todo)
   } else {
     // Create a shallow copy so that storageService.post()
     // can safely add _id without mutating the original todo object :
@@ -80,8 +87,10 @@ function save(todo) {
 
     newTodo.createdAt = newTodo.updatedAt = Date.now()
 
-    return storageService.post(TODO_KEY, newTodo)
+    savedTodo = storageService.post(TODO_KEY, newTodo)
   }
+
+  return _includeDataFromServer({ savedTodo })
 }
 
 function getEmptyTodo(txt = "", importance = 5) {
@@ -89,7 +98,7 @@ function getEmptyTodo(txt = "", importance = 5) {
 }
 
 function getDefaultFilter() {
-  return { txt: "", importance: 0, showOption: "all", sort: "" }
+  return { txt: "", importance: 0, showOption: "all", sort: "", pageIdx: 0 }
 }
 
 function getFilterFromSearchParams() {
@@ -99,8 +108,32 @@ function getFilterFromSearchParams() {
     importance: +searchParams["importance"] || 0,
     showOption: searchParams["showOption"] || "all",
     sort: searchParams["sort"] || "",
+    pageIdx: +searchParams["pageIdx"] || 0,
   }
   return filterBy
+}
+
+//* Demo function thats mimic the extra pagination data from the server
+function _includeDataFromServer(data = {}) {
+  const filteredTodosLength = data.filteredTodosLength
+
+  return Promise.resolve(getMaxPage(filteredTodosLength)).then(maxPage => {
+    return { maxPage, ...data }
+  })
+}
+
+//* Demo function thats mimic the extra pagination data from the server
+function getMaxPage(filteredTodosLength) {
+  if (filteredTodosLength)
+    return Promise.resolve(Math.ceil(filteredTodosLength / PAGE_SIZE))
+
+  return storageService
+    .query(TODO_KEY)
+    .then(todos => Math.ceil(todos.length / PAGE_SIZE))
+    .catch(err => {
+      console.error("Cannot get max page:", err)
+      throw err
+    })
 }
 
 function getImportanceStats() {

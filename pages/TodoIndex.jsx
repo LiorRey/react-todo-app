@@ -6,6 +6,7 @@ import {
 } from "../store/actions/todo.actions.js"
 import { updateBalance } from "../store/actions/user.actions.js"
 import { TodoFilter } from "../cmps/TodoFilter.jsx"
+import { PaginationBtns } from "../cmps/PaginationBtns.jsx"
 import { TodoList } from "../cmps/TodoList.jsx"
 import { DataTable } from "../cmps/data-table/DataTable.jsx"
 import { utilService } from "../services/util.service.js"
@@ -18,6 +19,7 @@ const { useSelector } = ReactRedux
 export function TodoIndex() {
   const todos = useSelector(storeState => storeState.todoModule.todos)
   const filterBy = useSelector(storeState => storeState.todoModule.filterBy)
+  const maxPage = useSelector(storeState => storeState.todoModule.maxPage)
   const isLoading = useSelector(storeState => storeState.todoModule.isLoading)
   const user = useSelector(storeState => storeState.userModule.loggedInUser)
 
@@ -52,8 +54,18 @@ export function TodoIndex() {
   }
 
   function onSetFilterSort(newFilterBy) {
+    newFilterBy.pageIdx = 0
     setFilterSort(newFilterBy)
   }
+
+  function onChangePageIdx(diff) {
+    let newPageIdx = +filterBy.pageIdx + diff
+    if (newPageIdx < 0) newPageIdx = maxPage - 1
+    if (newPageIdx >= maxPage) newPageIdx = 0
+    setFilterSort({ pageIdx: newPageIdx })
+  }
+
+  const { pageIdx, ...restOfFilter } = filterBy
 
   if (!todos) return <div>Loading...</div>
   return (
@@ -64,14 +76,20 @@ export function TodoIndex() {
           Add Todo
         </Link>
       </div>
-      <h2>Todos List</h2>
+      <h2 className="todos-list-title">Todos List</h2>
       <div className={isLoading ? "loading" : ""}>
         {!!todos.length ? (
-          <TodoList
-            todos={todos}
-            onRemoveTodo={onRemoveTodo}
-            onToggleTodo={onToggleTodo}
-          />
+          <div>
+            <PaginationBtns
+              pageIdx={pageIdx}
+              onChangePageIdx={onChangePageIdx}
+            />
+            <TodoList
+              todos={todos}
+              onRemoveTodo={onRemoveTodo}
+              onToggleTodo={onToggleTodo}
+            />
+          </div>
         ) : (
           <h3>No todos to show...</h3>
         )}
